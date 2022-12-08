@@ -1,0 +1,24 @@
+{
+  "endpoints": {
+    "/balances/PFI/{pfi}":{
+      "get": {
+        "js_module": "endpoints/balances.js",
+        "js_function": "getpfibalance",
+        "forwarding_required": "never",
+        "authn_policies": ["user_cert"],
+        "mode": "readonly",
+        "openapi": {}
+      }
+    },
+    "/pledge":{
+      "post": {
+        "js_module": "endpoints/cbonlyop.js",
+        "js_function": "pledge",
+        "forwarding_required": "always",
+        "authn_policies": ["user_cert"],
+        "mode": "readwrite",
+        "openapi": {}
+      }
+    }
+  }
+}
