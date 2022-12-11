@@ -1,5 +1,15 @@
 {
   "endpoints": {
+    "/heartbeat":{
+      "get": {
+        "js_module": "app.js",
+        "js_function": "heartbeat",
+        "forwarding_required": "always",
+        "authn_policies": [],
+        "mode": "readonly",
+        "openapi": {}
+      }
+    },
     "/balances/PFI/{pfi}":{
       "get": {
         "js_module": "endpoints/balances.js",
@@ -16,6 +26,16 @@
         "js_function": "pledge",
         "forwarding_required": "always",
         "authn_policies": ["user_cert"],
+        "mode": "readwrite",
+        "openapi": {}
+      }
+    },
+    "/register/thyself":{
+      "post":{
+        "js_module": "endpoints/cbonlyop.js",
+        "js_function": "registerthyself",
+        "forwarding_required": "always",
+        "authn_policies": ["member_cert"],
         "mode": "readwrite",
         "openapi": {}
       }
