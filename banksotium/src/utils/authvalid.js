@@ -17,25 +17,29 @@ export function validateMemberId(memberId){
     const memberVal = ccf.bufToJsonCompatible(memberInfo.get(memberKey))
     console.log(`Status ${memberVal.status}`)
         
-    if(memberVal.status=="Active")
-    {
+    if(memberVal.status=="Active"){
         return true
     }
     
     return false
 }
 
-export function validateUserId(userId){
-    const userCerts = ccfapp.rawKv['public:ccf.gov.users.certs'];
-    const userKey = ccf.strToBuf(userId)
-    
-    if(userCerts.has(userKey))
-    {
-        return true
+export function validateUserId(userId,verbose=false){
+    const userInfo = ccfapp.typedKv('public:ccf.gov.users.certs',
+    ccfapp.string,
+    ccfapp.string);
+
+    if(!userInfo.has(userId)){
+        console.log(`User ${userId} lookup failed`)        
+        return false
+    }
+
+    if(verbose){
+        const userVal = userInfo.get(userId);
+        console.log(`User Info ${JSON.stringify(userVal)}`)   
     }
     
-    console.log(`User ${userId} lookup failed`)
-    return false
+    return true
 }
 
 function centralBankUserId(){

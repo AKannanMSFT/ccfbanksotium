@@ -17,7 +17,9 @@ check_eq() {
     if [ "$expected" == "$actual" ]; then
         echo "[Pass]"
     else
-        echo "[Fail]: $expected expected, but got $actual -- Killed $sandbox_pid"
+        echo "[Fail]: $expected expected, but got $actual -- Killing $sandbox_pid"
+        echo "Waiting for logs to be ready..."
+        sleep 5
         echo "$(cat /proc/$(pgrep -f ./cchost)/fd/1)"
 
         (kill -9 $sandbox_pid)
@@ -53,11 +55,11 @@ bank2_id=$(openssl x509 -in "./workspace/sandbox_common/user2_cert.pem" -noout -
 bank3_id=$(openssl x509 -in "./workspace/sandbox_common/user3_cert.pem" -noout -fingerprint -sha256 | cut -d "=" -f 2 | sed 's/://g' | awk '{print tolower($0)}')
 bank4_id=$(openssl x509 -in "./workspace/sandbox_common/user4_cert.pem" -noout -fingerprint -sha256 | cut -d "=" -f 2 | sed 's/://g' | awk '{print tolower($0)}')
 bank5_id=$(openssl x509 -in "./workspace/sandbox_common/user5_cert.pem" -noout -fingerprint -sha256 | cut -d "=" -f 2 | sed 's/://g' | awk '{print tolower($0)}')
+register_thyself_data="{\"user_id\": \"$centralBank_id\"}"
 
-echo "Register the Central Bank as $centralBank_id"
-
-data_binary="{\"user_id\": \"$centralBank_id\"}"
-check_eq "Central Bank Register Thyself" "200" "$(curl $server/register/thyself -X POST $(cert_arg "member0") -H "Content-Type: application/json" --data-binary $data_binary $only_status_code)"
+# List of test cases
+check_eq "Test Heartbeat Service" "200" "$(curl $server/app/heartbeat -X GET $(cert_arg "member0") $only_status_code)"
+check_eq "Central Bank Register Thyself" "200" "$(curl $server/app/register/thyself -X POST $(cert_arg "member0") -H "Content-Type: application/json" -d "$register_thyself_data" $only_status_code)"
 
 echo "Killing the Sandbox $sandbox_pid"
 kill -9 $sandbox_pid
