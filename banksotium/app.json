@@ -37,7 +37,30 @@
         "forwarding_required": "always",
         "authn_policies": ["member_cert"],
         "mode": "readwrite",
-        "openapi": {}
+        "openapi": {
+          "responses": {
+            "200": {
+              "description": "Ok"
+            }
+          },
+          "security": [],
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "user_id": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

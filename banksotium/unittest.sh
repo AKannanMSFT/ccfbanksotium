@@ -9,6 +9,27 @@ echo "Launching sandbox - with one Central Bank and two PFIs hosting. 5 PFIs wil
 /opt/ccf/bin/sandbox.sh --js-app-bundle ./dist/ --initial-member-count 3 --initial-user-count 6 > /dev/null 2>&1 &
 sandbox_pid=$!
 
+check_eq() {
+    local test_name="$1"
+    local expected="$2"
+    local actual="$3"
+    echo -n "$test_name: "
+    if [ "$expected" == "$actual" ]; then
+        echo "[Pass]"
+    else
+        echo "[Fail]: $expected expected, but got $actual -- Killed $sandbox_pid"
+        echo "$(cat /proc/$(pgrep -f ./cchost)/fd/1)"
+
+        (kill -9 $sandbox_pid)
+        exit 1
+    fi
+}
+
+cert_arg() {
+    caller="$1"
+    echo "--cacert ./workspace/sandbox_common/service_cert.pem --cert ./workspace/sandbox_common/${caller}_cert.pem --key ./workspace/sandbox_common/${caller}_privk.pem"
+}
+
 echo "Sandbox PID: $sandbox_pid"
 
 server="https://127.0.0.1:8000"
@@ -35,6 +56,10 @@ bank5_id=$(openssl x509 -in "./workspace/sandbox_common/user5_cert.pem" -noout -
 
 echo "Register the Central Bank as $centralBank_id"
 
-echo "OK"
+data_binary="{\"user_id\": \"$centralBank_id\"}"
+check_eq "Central Bank Register Thyself" "200" "$(curl $server/register/thyself -X POST $(cert_arg "member0") -H "Content-Type: application/json" --data-binary $data_binary $only_status_code)"
+
+echo "Killing the Sandbox $sandbox_pid"
 kill -9 $sandbox_pid
+echo "OK"
 exit 0
