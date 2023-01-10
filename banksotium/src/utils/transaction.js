@@ -1,8 +1,8 @@
 import * as ccfapp from "@microsoft/ccf-app";
 import * as tokenstruct from "../struct";
 import { plainToInstance, instanceToPlain } from 'class-transformer';
+import * as constant from '../utils/constants'
 
-const S_LATEST = 'LATEST'
 const seqKVName = 'sequenceStore'
 const seqLatestKey = 'GLOBAL'
 const objStoreKVName = 'objStore'
@@ -220,7 +220,7 @@ function getLSeqSafe(pfi,lseq){
         return 0;
     }
 
-    if(lseq == S_LATEST){
+    if(lseq == constant.S_LATEST){
         lseq = latestSeq
     }
 
@@ -231,21 +231,21 @@ function getLSeqSafe(pfi,lseq){
     return lseq
 }
 
-export function balance(pfi,lseq=S_LATEST){
+export function balance(pfi,lseq=constant.S_LATEST){
     // Returns the balance of a pfi.
     // if lseq not provided, returns the latest balance
     
-    const lseq = getLSeqSafe(pfi,lseq)
-    const accountState = fetchAccountSeq(pfi,lseq)
+    const lSeq = getLSeqSafe(pfi,lseq)
+    const accountState = fetchAccountSeq(pfi,lSeq)
 
     return accountState.Balance
 }
 
-export function receipt(pfi,lseq=S_LATEST){
+export function receipt(pfi,lseq=constant.S_LATEST){
     // Returns the receipt of the object
     // if the lseq not provided, return the latest receipt
-    const lseq = getLSeqSafe(pfi,lseq)
-    const accountState = fetchAccountSeq(pfi,lseq)
+    const lSeq = getLSeqSafe(pfi,lseq)
+    const accountState = fetchAccountSeq(pfi,lSeq)
 
     const objinStore = objStoreKV.get(accountState.ObjID)
 
