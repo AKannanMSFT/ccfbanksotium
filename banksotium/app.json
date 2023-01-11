@@ -10,13 +10,33 @@
         "openapi": {}
       }
     },
-    "/balances/PFI/{pfi}":{
+    "/balance":{
       "get": {
-        "js_module": "endpoints/balances.js",
-        "js_function": "getpfibalance",
+        "js_module": "endpoints/pfiop.js",
+        "js_function": "getbalance",
         "forwarding_required": "never",
         "authn_policies": ["user_cert"],
         "mode": "readonly",
+        "openapi": {}
+      }
+    },
+    "/receipt":{
+      "post": {
+        "js_module": "endpoints/pfiop.js",
+        "js_function": "getreceipt",
+        "forwarding_required": "never",
+        "authn_policies": ["user_cert"],
+        "mode": "readonly",
+        "openapi": {}
+      }
+    },
+    "/transfer":{
+      "post": {
+        "js_module": "endpoints/pfiop.js",
+        "js_function": "transfer",
+        "forwarding_required": "always",
+        "authn_policies": ["user_cert"],
+        "mode": "readwrite",
         "openapi": {}
       }
     },
@@ -37,30 +57,7 @@
         "forwarding_required": "always",
         "authn_policies": ["member_cert"],
         "mode": "readwrite",
-        "openapi": {
-          "responses": {
-            "200": {
-              "description": "Ok"
-            }
-          },
-          "security": [],
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "user_id": {
-                      "type": "string"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
+        "openapi": {}
       }
     }
   }

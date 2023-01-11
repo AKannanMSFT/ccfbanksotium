@@ -57,11 +57,14 @@ bank2_id=$(openssl x509 -in "./workspace/sandbox_common/user2_cert.pem" -noout -
 bank3_id=$(openssl x509 -in "./workspace/sandbox_common/user3_cert.pem" -noout -fingerprint -sha256 | cut -d "=" -f 2 | sed 's/://g' | awk '{print tolower($0)}')
 bank4_id=$(openssl x509 -in "./workspace/sandbox_common/user4_cert.pem" -noout -fingerprint -sha256 | cut -d "=" -f 2 | sed 's/://g' | awk '{print tolower($0)}')
 bank5_id=$(openssl x509 -in "./workspace/sandbox_common/user5_cert.pem" -noout -fingerprint -sha256 | cut -d "=" -f 2 | sed 's/://g' | awk '{print tolower($0)}')
+
 register_thyself_data="{\"user_id\": \"$centralBank_id\"}"
+pledge_money_data_bnk1="{\"user_id\": \"$bank1_id\", \"amount\": 100000}"
 
 # -------------------------- Test Cases  --------------------------
 check_eq "Test Heartbeat Service" "200" "$(curl $server/app/heartbeat -X GET $(cert_arg "member0") $only_status_code)"
 check_eq "Central Bank Register Thyself" "200" "$(curl $server/app/register/thyself -X POST $(cert_arg "member0") -H "Content-Type: application/json" -d "$register_thyself_data" $only_status_code)"
+check_eq "Pledge Money through Central Bank" "200" "$(curl $server/app/pledge -X POST $(cert_arg "user0") -H "Content-Type: application/json" -d "$pledge_money_data_bnk1" $only_status_code)"
 
 # -------------------------- Wind Down --------------------------
 echo "Killing the Sandbox $sandbox_pid"

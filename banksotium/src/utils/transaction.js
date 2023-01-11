@@ -117,7 +117,7 @@ export function pledge(ben_user,amount,currency){
     const gSeq = gSeqLatest + 1
 
     const ddro = new tokenstruct.DDO(ben_user,
-        requestTime,
+        requestTime.toString(),
         amount,
         currency,
         tokenstruct.FlowTypeEnum.Pledge,
@@ -183,7 +183,7 @@ export function transfer(issue_user,amount,acq_user,currency){
     dBalance = dBalance + amount
     
     const ddr = new tokenstruct.DD(issue_user,
-        requestTime,
+        requestTime.toString(),
         amount,
         currency,
         acq_user,
