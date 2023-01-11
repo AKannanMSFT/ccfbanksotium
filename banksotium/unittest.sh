@@ -59,12 +59,13 @@ bank4_id=$(openssl x509 -in "./workspace/sandbox_common/user4_cert.pem" -noout -
 bank5_id=$(openssl x509 -in "./workspace/sandbox_common/user5_cert.pem" -noout -fingerprint -sha256 | cut -d "=" -f 2 | sed 's/://g' | awk '{print tolower($0)}')
 
 register_thyself_data="{\"user_id\": \"$centralBank_id\"}"
-pledge_money_data_bnk1="{\"user_id\": \"$bank1_id\", \"amount\": 100000}"
+pledge_money_data_bnk1="{\"user_id\": \"$bank1_id\", \"amount\": 50000}"
 receipt_check_data="{\"lSeq\": \"LATEST\"}"
 # -------------------------- Test Cases  --------------------------
 check_eq "Test Heartbeat Service" "200" "$(curl $server/app/heartbeat -X GET $(cert_arg "member0") $only_status_code)"
 check_eq "Central Bank Register Thyself" "200" "$(curl $server/app/register/thyself -X POST $(cert_arg "member0") -H "Content-Type: application/json" -d "$register_thyself_data" $only_status_code)"
-check_eq "Pledge Money through Central Bank" "200" "$(curl $server/app/pledge -X POST $(cert_arg "user0") -H "Content-Type: application/json" -d "$pledge_money_data_bnk1" $only_status_code)"
+check_eq "Pledge Money through Central Bank once" "200" "$(curl $server/app/pledge -X POST $(cert_arg "user0") -H "Content-Type: application/json" -d "$pledge_money_data_bnk1" $only_status_code)"
+check_eq "Pledge Money through Central Bank twice" "200" "$(curl $server/app/pledge -X POST $(cert_arg "user0") -H "Content-Type: application/json" -d "$pledge_money_data_bnk1" $only_status_code)"
 check_eq "Verify balance is updated" "200" "$(curl $server/app/balance -X GET $(cert_arg "user1") $only_status_code)"
 check_eq "Verify that receipt is issued" "200" "$(curl $server/app/receipt -X POST $(cert_arg "user1") -H "Content-Type: application/json" -d "$receipt_check_data" $only_status_code)"
 check_eq "Verify that transfer is possible" "200" "$(curl $server/app/transfer -X POST $(cert_arg "user1") -H "Content-Type: application/json" -d "{\"acquirer\": \"$bank2_id\", \"amount\":2000}" $only_status_code)"
