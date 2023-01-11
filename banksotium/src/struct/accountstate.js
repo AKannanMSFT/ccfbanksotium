@@ -10,7 +10,6 @@ export class AccountState{
             this.PFI = PFI,
             this.Balance = Balance,
             this.Currency = Currency,
-            this.Status = Status,
             this.GSeq = GSeq,
             this.LSeq = LSeq,
             this.ObjID = ObjID

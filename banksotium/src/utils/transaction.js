@@ -15,13 +15,13 @@ const seqKV = ccfapp.typedKv(seqKVName,
 // Object store that has DDR and DDORs stored
 const objStoreKV = ccfapp.typedKv(objStoreKVName,
 ccfapp.string,
-ccfapp.json)
+ccfapp.json())
 
 // Account state store that keeps track of balance
 function accStateKV(user_id){
     return ccfapp.typedKv(`accState:${user_id}`,
     ccfapp.uint64,
-    ccfapp.json)
+    ccfapp.json())
 }
 
 // Functions to perform get & set from Seq store
@@ -37,12 +37,12 @@ function getLatestGSeq(){
 
 function incrementLatestGSeq(){
     // increments the latest global sequence of the ledger
-    seqKV.set(seqLatestKey,getLatestGSeq()+1)
+    seqKV.set(seqLatestKey,BigInt(getLatestGSeq()+1))
 }
 
 function getLatestSeq(user_id){
     if(!seqKV.has(user_id))
-    {
+    {        
         //first time that the account is getting accessed
         return null
     }
@@ -82,8 +82,8 @@ function setLatestState(user_id,obj){
     const accountStateKV = accStateKV(user_id)
     const objToWrite = instanceToPlain(obj)
 
-    seqKV.set(user_id,latestEntry)
-    accountStateKV.set(latestEntry,objToWrite)
+    seqKV.set(user_id,BigInt(latestEntry))
+    accountStateKV.set(BigInt(latestEntry),objToWrite)
 }
 
 function addToObjectStore(objID, obj){
@@ -102,10 +102,12 @@ function fetchAccountSeq(user_id,lseq){
 
 // Exported functions for banking operations
 export function pledge(ben_user,amount,currency){
+    
     //Originate fund into a user account
     const requestTime = new Date()
     const gSeqLatest = getLatestGSeq()
-    const lSeqLatest = getLatestSeq(ben_user)
+
+    var lSeqLatest = getLatestSeq(ben_user)
     var newAccount = false
 
     if(!lSeqLatest){
@@ -125,7 +127,7 @@ export function pledge(ben_user,amount,currency){
         gSeq,
         lSeq
         )
-    
+        
     var balance = amount
     if(!newAccount){
         const currentState = getLatestState(ben_user)
@@ -138,6 +140,7 @@ export function pledge(ben_user,amount,currency){
         lSeq,
         gSeq,
         ddro.ID)
+    
     
     addToObjectStore(ddro.ID,ddro)
     setLatestState(ben_user,accountState)
