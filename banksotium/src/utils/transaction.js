@@ -56,7 +56,7 @@ function getLatestState(user_id){
     
     const latestAcc = getLatestSeq(user_id)
     
-    if(!latestAcc)
+    if(latestAcc===null)
     {
         // account has not been created
         return null
@@ -73,7 +73,7 @@ function setLatestState(user_id,obj){
     // This function sets the latest object state
     var latestEntry = getLatestSeq(user_id)
 
-    if(!latestEntry)
+    if(latestEntry===null)
     {
         latestEntry = -1
     }
@@ -110,7 +110,7 @@ export function pledge(ben_user,amount,currency){
     var lSeqLatest = getLatestSeq(ben_user)
     var newAccount = false
 
-    if(!lSeqLatest){
+    if(lSeqLatest===null){
         lSeqLatest = -1
         newAccount = true
     }
@@ -155,7 +155,7 @@ export function transfer(issue_user,amount,acq_user,currency){
     var newAccount = false
     const gSeq = gSeqLatest + 1
 
-    if(!ilSeqLatest){
+    if(ilSeqLatest===null){
         throw new Error("Account doesn't exist. Get a pledge or inward transfer")
     }
 
@@ -166,7 +166,7 @@ export function transfer(issue_user,amount,acq_user,currency){
     }
 
     const dlSeqLatest = getLatestSeq(acq_user)
-    if(!dlSeqLatest){
+    if(dlSeqLatest===null){
         //first ever transaction for acquiring user
         newAccount = true
     }
@@ -219,7 +219,7 @@ function getLSeqSafe(pfi,lseq){
 
     const latestSeq = getLatestSeq(pfi)
 
-    if(!latestSeq){
+    if(latestSeq===null){
         return 0;
     }
 
