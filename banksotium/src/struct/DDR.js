@@ -30,14 +30,14 @@ export class DD{
             this.Amount = Amount,
             this.Currency = Currency,
             this.AcquiringPFI = AcquiringPFI,
-            this.GSeq = GSeq,
-            this.sLSeq = sLSeq,
-            this.dLSeq = dLSeq,
+            this.GSeq = String(GSeq),
+            this.sLSeq = String(sLSeq),
+            this.dLSeq = String(dLSeq),
             this.ID = `${IssuingPFI}-${sLSeq}-${AcquiringPFI}-${dLSeq}`
         }
     
     getReceipt(forPFI){
-        LSeq = null
+        var LSeq = BigInt(0)
         if(forPFI == this.IssuingPFI)
         {
             LSeq = this.sLSeq

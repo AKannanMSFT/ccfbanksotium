@@ -3,6 +3,9 @@ import * as tokenstruct from "../struct";
 import { plainToInstance, instanceToPlain } from 'class-transformer';
 import * as constant from '../utils/constants'
 
+const One = BigInt(1)
+const mOne = BigInt(-1)
+
 const seqKVName = 'sequenceStore'
 const seqLatestKey = 'GLOBAL'
 const objStoreKVName = 'objStore'
@@ -29,7 +32,7 @@ function getLatestGSeq(){
     // gets the latest global sequence of the ledger
     if(!seqKV.has(seqLatestKey))
     {
-        return -1;
+        return mOne;
     }
 
     return seqKV.get(seqLatestKey)
@@ -37,18 +40,22 @@ function getLatestGSeq(){
 
 function incrementLatestGSeq(){
     // increments the latest global sequence of the ledger
-    seqKV.set(seqLatestKey,BigInt(getLatestGSeq()+1))
+    seqKV.set(seqLatestKey,getLatestGSeq()+One)
 }
 
 function getLatestSeq(user_id){
     if(!seqKV.has(user_id))
     {        
         //first time that the account is getting accessed
-        return -1
+        return mOne
     }
 
     // Latest Sequence for the account
     return seqKV.get(user_id)
+}
+
+function isNewAccount(user_id){
+    return (!seqKV.has(user_id))
 }
 
 // Functions to handle State
@@ -56,7 +63,7 @@ function getLatestState(user_id){
     
     const latestAcc = getLatestSeq(user_id)
     
-    if(latestAcc<0)
+    if(isNewAccount(user_id))
     {
         // account has not been created
         return null
@@ -64,7 +71,7 @@ function getLatestState(user_id){
 
     // Accounts State KV
     const accountStateKV = accStateKV(user_id)
-    const accountStateGotten = accountStateKV.get(latestAcc)
+    var accountStateGotten = accountStateKV.get(latestAcc)
 
     return plainToInstance(tokenstruct.AccountState,accountStateGotten)
 }
@@ -73,7 +80,7 @@ function setLatestState(user_id,obj){
     // This function sets the latest object state
     var latestEntry = getLatestSeq(user_id)
 
-    latestEntry += 1
+    latestEntry += One
     const accountStateKV = accStateKV(user_id)
     const objToWrite = instanceToPlain(obj)
 
@@ -101,17 +108,17 @@ export function pledge(ben_user,amount,currency){
     //Originate fund into a user account
     const requestTime = new Date()
     const gSeqLatest = getLatestGSeq()
+    amount = amount
 
     var lSeqLatest = getLatestSeq(ben_user)
-    var newAccount = false
+    var newAccount = isNewAccount(ben_user)
 
-    if(lSeqLatest<0){
-        lSeqLatest = -1
-        newAccount = true
+    if(newAccount){
+        lSeqLatest = mOne
     }
 
-    const lSeq = lSeqLatest +1
-    const gSeq = gSeqLatest + 1
+    const lSeq = lSeqLatest + One
+    const gSeq = gSeqLatest + One
 
     const ddro = new tokenstruct.DDO(ben_user,
         requestTime.toString(),
@@ -122,11 +129,11 @@ export function pledge(ben_user,amount,currency){
         gSeq,
         lSeq
         )
-        
+    
     var balance = amount
     if(!newAccount){
         const currentState = getLatestState(ben_user)
-        balance = amount + currentState.Balance
+        balance = amount + parseFloat(currentState.Balance)
     }
 
     const accountState = new tokenstruct.AccountState(ben_user,
@@ -135,7 +142,6 @@ export function pledge(ben_user,amount,currency){
         lSeq,
         gSeq,
         ddro.ID)
-    
     
     addToObjectStore(ddro.ID,ddro)
     setLatestState(ben_user,accountState)
@@ -147,50 +153,36 @@ export function transfer(issue_user,amount,acq_user,currency){
     const requestTime = new Date()
     const gSeqLatest = getLatestGSeq()
     const ilSeqLatest = getLatestSeq(issue_user)
-    var newAccount = false
-    const gSeq = gSeqLatest + 1
+    var newAccount = isNewAccount(acq_user)
+    var newIssuer = isNewAccount(issue_user)
+    const gSeq = gSeqLatest + One
 
-    console.log(`Marker 0 - ${ilSeqLatest}`)
-
-    if(ilSeqLatest<0){
+    if(newIssuer){
         throw new Error("Account doesn't exist. Get a pledge or inward transfer")
     }
     
-    console.log(`Marker 1`)
-
     const sAccountState = getLatestState(issue_user)
 
-    console.log(`Marker 2`)
-
-    if(sAccountState.Balance<amount){
+    if(parseFloat(sAccountState.Balance)<amount){
         throw new Error("Insufficient balance in source account")
     }
 
-    console.log(`Marker 3`)
-
     const dlSeqLatest = getLatestSeq(acq_user)
-    if(dlSeqLatest<0){
-        //first ever transaction for acquiring user
-        newAccount = true
-    }
 
-    var sBalance = sAccountState.Balance
+    var sBalance = parseFloat(sAccountState.Balance)
     var dBalance = 0
-    var sLSeq = ilSeqLatest + 1
+    var sLSeq = ilSeqLatest + One
     var dLSeq = 0
 
     if(!newAccount){
         const currentState =  getLatestState(acq_user)
-        dBalance = currentState.Balance
-        dLSeq = currentState.LSeq + 1
+        dBalance = parseFloat(currentState.Balance)
+        dLSeq = currentState.LSeq + One
     }
 
     sBalance = sBalance - amount
     dBalance = dBalance + amount
-
-    console.log(`Marker 4`)
-
-    
+   
     const ddr = new tokenstruct.DD(issue_user,
         requestTime.toString(),
         amount,
@@ -201,8 +193,6 @@ export function transfer(issue_user,amount,acq_user,currency){
         dLSeq
         )
     
-    console.log(`Marker 5`)
-
     const sAccountEndState = new tokenstruct.AccountState(issue_user,
         sBalance,
         currency,
@@ -210,16 +200,12 @@ export function transfer(issue_user,amount,acq_user,currency){
         gSeq,
         ddr.ID)
     
-    console.log(`Marker 6`)
-
     const dAccountEndState = new tokenstruct.AccountState(acq_user,
         dBalance,
         currency,
         dLSeq,
         gSeq,
         ddr.ID)
-    
-    console.log(`Marker 7`)
     
     addToObjectStore(ddr.ID,ddr)
     setLatestState(issue_user,sAccountEndState)
@@ -231,7 +217,7 @@ function getLSeqSafe(pfi,lseq){
 
     const latestSeq = getLatestSeq(pfi)
 
-    if(latestSeq<0){
+    if(isNewAccount(pfi)){
         return -1;
     }
 

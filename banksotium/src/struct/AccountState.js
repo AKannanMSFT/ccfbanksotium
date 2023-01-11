@@ -8,10 +8,10 @@ export class AccountState{
         ObjID
         ){
             this.PFI = PFI,
-            this.Balance = Balance,
+            this.Balance = String(Balance),
             this.Currency = Currency,
-            this.GSeq = GSeq,
-            this.LSeq = LSeq,
+            this.GSeq = String(GSeq),
+            this.LSeq = String(LSeq),
             this.ObjID = ObjID
         }
 }

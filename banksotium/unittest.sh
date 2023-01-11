@@ -68,7 +68,10 @@ check_eq "Pledge Money through Central Bank once" "200" "$(curl $server/app/pled
 check_eq "Pledge Money through Central Bank twice" "200" "$(curl $server/app/pledge -X POST $(cert_arg "user0") -H "Content-Type: application/json" -d "$pledge_money_data_bnk1" $only_status_code)"
 check_eq "Verify balance is updated" "200" "$(curl $server/app/balance -X GET $(cert_arg "user1") $only_status_code)"
 check_eq "Verify that receipt is issued" "200" "$(curl $server/app/receipt -X POST $(cert_arg "user1") -H "Content-Type: application/json" -d "$receipt_check_data" $only_status_code)"
-check_eq "Verify that transfer is possible" "200" "$(curl $server/app/transfer -X POST $(cert_arg "user1") -H "Content-Type: application/json" -d "{\"acquirer\": \"$bank2_id\", \"amount\":2000}" $only_status_code)"
+check_eq "Transfer funds from one" "200" "$(curl $server/app/transfer -X POST $(cert_arg "user1") -H "Content-Type: application/json" -d "{\"acquirer\": \"$bank2_id\", \"amount\":2000}" $only_status_code)"
+check_eq "Transfer of transfer" "200" "$(curl $server/app/transfer -X POST $(cert_arg "user2") -H "Content-Type: application/json" -d "{\"acquirer\": \"$bank3_id\", \"amount\":1000}" $only_status_code)"
+check_eq "Verify balance is updated" "200" "$(curl $server/app/balance -X GET $(cert_arg "user2") $only_status_code)"
+check_eq "Verify that receipt is issued" "200" "$(curl $server/app/receipt -X POST $(cert_arg "user3") -H "Content-Type: application/json" -d "$receipt_check_data" $only_status_code)"
 
 # -------------------------- Wind Down --------------------------
 echo "Killing the Sandbox $sandbox_pid"

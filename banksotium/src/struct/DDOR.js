@@ -29,8 +29,8 @@ export class DDO{
             this.Currency = Currency,
             this.Type = Type,
             this.Status = Status,
-            this.GSeq = GSeq,
-            this.LSeq = LSeq,
+            this.GSeq = String(GSeq),
+            this.LSeq = String(LSeq),
             this.ID = `${RequestingPFI}-${LSeq}`
         }
     
