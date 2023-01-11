@@ -60,11 +60,14 @@ bank5_id=$(openssl x509 -in "./workspace/sandbox_common/user5_cert.pem" -noout -
 
 register_thyself_data="{\"user_id\": \"$centralBank_id\"}"
 pledge_money_data_bnk1="{\"user_id\": \"$bank1_id\", \"amount\": 100000}"
-
+receipt_check_data="{\"lSeq\": \"LATEST\"}"
 # -------------------------- Test Cases  --------------------------
 check_eq "Test Heartbeat Service" "200" "$(curl $server/app/heartbeat -X GET $(cert_arg "member0") $only_status_code)"
 check_eq "Central Bank Register Thyself" "200" "$(curl $server/app/register/thyself -X POST $(cert_arg "member0") -H "Content-Type: application/json" -d "$register_thyself_data" $only_status_code)"
 check_eq "Pledge Money through Central Bank" "200" "$(curl $server/app/pledge -X POST $(cert_arg "user0") -H "Content-Type: application/json" -d "$pledge_money_data_bnk1" $only_status_code)"
+check_eq "Verify balance is updated" "200" "$(curl $server/app/balance -X GET $(cert_arg "user1") $only_status_code)"
+check_eq "Verify that receipt is issued" "200" "$(curl $server/app/receipt -X POST $(cert_arg "user1") -H "Content-Type: application/json" -d "$receipt_check_data" $only_status_code)"
+
 
 # -------------------------- Wind Down --------------------------
 echo "Killing the Sandbox $sandbox_pid"

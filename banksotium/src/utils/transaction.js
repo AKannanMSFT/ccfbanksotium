@@ -95,7 +95,7 @@ function addToObjectStore(objID, obj){
 function fetchAccountSeq(user_id,lseq){
     // returns the object stored in user_id, lseq
     const accountStateKV = accStateKV(user_id)
-    const accountStateGottent = accountStateKV.get(lseq)
+    const accountStateGottent = accountStateKV.get(BigInt(lseq))
     
     return plainToInstance(tokenstruct.AccountState,accountStateGottent)
 }
@@ -255,11 +255,13 @@ export function receipt(pfi,lseq=constant.S_LATEST){
     var objToSend = null
     if(objinStore.hasOwnProperty("RequestingPFI")){
         //DDOR
-        objToSend = plainToInstance(tokenstruct.DDOR,objinStore)
+        objToSend = plainToInstance(tokenstruct.DDO,objinStore)
     }
     else{
         objToSend = plainToInstance(tokenstruct.DD,objinStore)
     }
 
-    return objToSend.getReceipt(pfi)
+    objToSend = objToSend.getReceipt(pfi)
+    
+    return instanceToPlain(objToSend)
 }

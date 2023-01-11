@@ -41,6 +41,6 @@ export class DDO{
             throw new Error("PFI does not have view permissions")
         }
 
-        return new DDOR(this,forPFI,LSeq);
+        return new DDOR(this);
     }
 }

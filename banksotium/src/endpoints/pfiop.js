@@ -40,8 +40,13 @@ export function getreceipt(request){
         }   
     }
 
-    var receiptObj = transaction.receipt(caller,body.lSeq == constants.S_LATEST?null:body.lSeq);
-    
+    var receiptObj = {}
+    if(body.lSeq == constants.S_LATEST){
+        receiptObj = transaction.receipt(caller)
+    }else{
+        receiptObj = transaction.receipt(caller,lSeq)
+    }
+     
     return {
         statusCode: 200,
         body:{
