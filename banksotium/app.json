@@ -1,0 +1,64 @@
+{
+  "endpoints": {
+    "/heartbeat":{
+      "get": {
+        "js_module": "app.js",
+        "js_function": "heartbeat",
+        "forwarding_required": "always",
+        "authn_policies": [],
+        "mode": "readonly",
+        "openapi": {}
+      }
+    },
+    "/balance":{
+      "get": {
+        "js_module": "endpoints/pfiop.js",
+        "js_function": "getbalance",
+        "forwarding_required": "never",
+        "authn_policies": ["user_cert"],
+        "mode": "readonly",
+        "openapi": {}
+      }
+    },
+    "/receipt":{
+      "post": {
+        "js_module": "endpoints/pfiop.js",
+        "js_function": "getreceipt",
+        "forwarding_required": "never",
+        "authn_policies": ["user_cert"],
+        "mode": "readonly",
+        "openapi": {}
+      }
+    },
+    "/transfer":{
+      "post": {
+        "js_module": "endpoints/pfiop.js",
+        "js_function": "transfer",
+        "forwarding_required": "always",
+        "authn_policies": ["user_cert"],
+        "mode": "readwrite",
+        "openapi": {}
+      }
+    },
+    "/pledge":{
+      "post": {
+        "js_module": "endpoints/cbonlyop.js",
+        "js_function": "pledge",
+        "forwarding_required": "always",
+        "authn_policies": ["user_cert"],
+        "mode": "readwrite",
+        "openapi": {}
+      }
+    },
+    "/register/thyself":{
+      "post":{
+        "js_module": "endpoints/cbonlyop.js",
+        "js_function": "registerthyself",
+        "forwarding_required": "always",
+        "authn_policies": ["member_cert"],
+        "mode": "readwrite",
+        "openapi": {}
+      }
+    }
+  }
+}
