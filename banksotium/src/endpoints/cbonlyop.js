@@ -61,7 +61,7 @@ export function pledge(request){
         statusCode:200,
         body:{
             "status":"Success",
-            "message":`${user_id} has received ${amount}`
+            "message":`${user_id} granted pledge of ${amount}`
         }
     };   
 }
